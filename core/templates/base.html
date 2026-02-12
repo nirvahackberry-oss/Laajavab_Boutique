@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Laajavab Boutique{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #e8f5e9 100%);
+            min-height: 100vh;
+        }
+        nav {
+            background: linear-gradient(90deg, #b8d4f1 0%, #d4b8e8 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        nav a {
+            color: #5a4a6a;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #8b7a9b;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        h1, h2 {
+            color: #6a5a7a;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ffc4e1 0%, #c4d7ff 100%);
+            color: #5a4a6a;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f0e6f6;
+        }
+        th {
+            background: #f8f4fc;
+            color: #6a5a7a;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #fef9ff;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e8dff0;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #c4b5d8;
+        }
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-pending { background: #fff4e6; color: #d97706; }
+        .badge-completed { background: #d1f4e0; color: #059669; }
+        .badge-progress { background: #dbeafe; color: #2563eb; }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}">🏠 Home</a></li>
+            <li><a href="{% url 'category_list' %}">📦 Categories</a></li>
+            <li><a href="{% url 'outfit_type_list' %}">👗 Outfits</a></li>
+            <li><a href="{% url 'sku_list' %}">🏷️ SKU</a></li>
+            <li><a href="{% url 'inventory_list' %}">📊 Inventory</a></li>
+            <li><a href="{% url 'supplier_list' %}">🚚 Suppliers</a></li>
+            <li><a href="{% url 'customer_list' %}">👥 Customers</a></li>
+            <li><a href="{% url 'alteration_list' %}">✂️ Alterations</a></li>
+            <li><a href="{% url 'tailor_list' %}">🪡 Tailors</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

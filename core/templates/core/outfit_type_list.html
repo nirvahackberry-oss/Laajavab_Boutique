@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Outfit Types - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>👗 Outfit Types</h1>
+    <a href="/outfit-types/create/" class="btn">+ Add Outfit Type</a>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for outfit in outfit_types %}
+            <tr>
+                <td>{{ outfit.name }}</td>
+                <td><span class="badge badge-progress">{{ outfit.code }}</span></td>
+                <td>
+                    <a href="/outfit-types/{{ outfit.id }}/edit/" class="btn" style="background: linear-gradient(135deg, #fff4e6 0%, #ffe6f0 100%);">✏️ Edit</a>
+                    <a href="/outfit-types/{{ outfit.id }}/delete/" class="btn" style="background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);" onclick="return confirm('Are you sure you want to delete this outfit type?');">🗑️ Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align: center; color: #999;">No outfit types found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Outfit Type - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>👗 Edit Outfit Type</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Outfit Type Name:</label>
+        <input type="text" id="name" name="name" value="{{ outfit_type.name }}" required>
+        
+        <p style="color: #7a6a8a; margin-bottom: 1rem;">Code: <strong>{{ outfit_type.code }}</strong> (auto-generated)</p>
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Update Outfit Type</button>
+        <a href="/outfit-types/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

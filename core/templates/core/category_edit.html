@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Category - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📦 Edit Category</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Category Name:</label>
+        <input type="text" id="name" name="name" value="{{ category.name }}" required>
+        
+        <p style="color: #7a6a8a; margin-bottom: 1rem;">Prefix: <strong>{{ category.prefix }}</strong> (auto-generated)</p>
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Update Category</button>
+        <a href="/categories/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

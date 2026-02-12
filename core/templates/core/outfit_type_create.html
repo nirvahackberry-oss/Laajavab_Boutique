@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Outfit Type - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>👗 Add New Outfit Type</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Outfit Type Name:</label>
+        <input type="text" id="name" name="name" required placeholder="e.g., Lehenga">
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Create Outfit Type</button>
+        <a href="/outfit-types/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

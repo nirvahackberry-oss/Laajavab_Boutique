@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Tailor - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🪡 Edit Tailor</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="name">Tailor Name:</label>
+        <input type="text" id="name" name="name" value="{{ tailor.name }}" required>
+        
+        <label for="specialties">Specialties:</label>
+        <input type="text" id="specialties" name="specialties" value="{{ tailor.specialties }}" required>
+        
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" value="{{ tailor.phone }}">
+        
+        <label for="is_available">Available:</label>
+        <select id="is_available" name="is_available">
+            <option value="1" {% if tailor.is_available %}selected{% endif %}>Yes</option>
+            <option value="0" {% if not tailor.is_available %}selected{% endif %}>No</option>
+        </select>
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Update Tailor</button>
+        <a href="/tailors/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

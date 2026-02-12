@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Customer - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>👥 Add New Customer</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="name">Customer Name:</label>
+        <input type="text" id="name" name="name" required placeholder="e.g., Jane Doe">
+        
+        <label for="phone_number">Phone Number:</label>
+        <input type="text" id="phone_number" name="phone_number" required placeholder="e.g., +1234567890">
+        
+        <label for="email">Email (Optional):</label>
+        <input type="email" id="email" name="email" placeholder="customer@example.com">
+        
+        <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Measurements (Optional)</h3>
+        
+        <label for="chest">Chest:</label>
+        <input type="number" id="chest" name="chest" step="0.01" placeholder="e.g., 36.5">
+        
+        <label for="waist">Waist:</label>
+        <input type="number" id="waist" name="waist" step="0.01" placeholder="e.g., 28.0">
+        
+        <label for="length">Length:</label>
+        <input type="number" id="length" name="length" step="0.01" placeholder="e.g., 42.0">
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Add Customer</button>
+        <a href="/customers/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Tailor - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🪡 Add New Tailor</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="name">Tailor Name:</label>
+        <input type="text" id="name" name="name" required placeholder="e.g., John Doe">
+        
+        <label for="specialties">Specialties:</label>
+        <input type="text" id="specialties" name="specialties" required placeholder="e.g., Bridal, Suits">
+        
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" placeholder="e.g., +1234567890">
+        
+        <label for="is_available">Available:</label>
+        <select id="is_available" name="is_available">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </select>
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Add Tailor</button>
+        <a href="/tailors/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Alteration - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>✂️ Edit Alteration</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="PENDING" {% if alteration.status == 'PENDING' %}selected{% endif %}>Pending</option>
+            <option value="RECEIVED" {% if alteration.status == 'RECEIVED' %}selected{% endif %}>Received</option>
+            <option value="IN_PROGRESS" {% if alteration.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+            <option value="READY" {% if alteration.status == 'READY' %}selected{% endif %}>Ready for Pickup</option>
+            <option value="COMPLETED" {% if alteration.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+        </select>
+        
+        <label for="issue_description">Issue Description:</label>
+        <textarea id="issue_description" name="issue_description" rows="4" required>{{ alteration.issue_description }}</textarea>
+        
+        <label for="notes">Notes:</label>
+        <textarea id="notes" name="notes" rows="3">{{ alteration.notes }}</textarea>
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Update Alteration</button>
+        <a href="/alterations/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

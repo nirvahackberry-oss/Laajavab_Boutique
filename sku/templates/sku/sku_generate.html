@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate SKU - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🏷️ Generate New SKU</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="category_id">Category:</label>
+        <select id="category_id" name="category_id" required>
+            <option value="">Select Category</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }} ({{ category.prefix }})</option>
+            {% endfor %}
+        </select>
+        
+        <label for="outfit_type_id">Outfit Type:</label>
+        <select id="outfit_type_id" name="outfit_type_id" required>
+            <option value="">Select Outfit Type</option>
+            {% for outfit in outfit_types %}
+            <option value="{{ outfit.id }}">{{ outfit.name }} ({{ outfit.code }})</option>
+            {% endfor %}
+        </select>
+        
+        <label for="supplier_id">Supplier:</label>
+        <select id="supplier_id" name="supplier_id" required>
+            <option value="">Select Supplier</option>
+            {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <label for="order_id">Order:</label>
+        <select id="order_id" name="order_id" required>
+            <option value="">Select Order</option>
+            {% for order in orders %}
+            <option value="{{ order.id }}">Order #{{ order.id }} - {{ order.supplier.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" step="0.01" required placeholder="0.00">
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Generate SKU</button>
+        <a href="/sku/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

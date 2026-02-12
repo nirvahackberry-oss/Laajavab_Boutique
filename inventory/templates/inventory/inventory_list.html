@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventory - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📊 Inventory Management</h1>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>SKU Code</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory %}
+            <tr>
+                <td><strong>{{ item.sku.sku_code }}</strong></td>
+                <td>{{ item.sku.category.name }} - {{ item.sku.outfit_type.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>
+                    {% if item.quantity > 10 %}
+                        <span class="badge badge-completed">In Stock</span>
+                    {% elif item.quantity > 0 %}
+                        <span class="badge badge-pending">Low Stock</span>
+                    {% else %}
+                        <span class="badge" style="background: #fee; color: #c00;">Out of Stock</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/inventory/{{ item.id }}/" class="btn">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #999;">No inventory items found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

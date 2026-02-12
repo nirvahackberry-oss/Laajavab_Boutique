@@ -1,0 +1,20 @@
+[project]
+name = "laajavab-project"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "django>=5.2.11",
+    "django-filter>=25.2",
+    "django-material-admin>=1.8.6",
+    "djangorestframework>=3.16.1",
+    "markdown>=3.10.2",
+    "pandas>=2.3.3",
+    "pillow>=12.1.1",
+    "prophet>=1.3.0",
+    "psycopg2-binary>=2.9.11",
+    "python-barcode>=0.16.1",
+    "reportlab>=4.4.9",
+    "requests>=2.32.5",
+    "scikit-learn>=1.7.2",
+    "xgboost>=3.2.0",
+]

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Category - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>📦 Add New Category</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Category Name:</label>
+        <input type="text" id="name" name="name" required placeholder="e.g., Bridal Wear">
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Create Category</button>
+        <a href="/categories/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

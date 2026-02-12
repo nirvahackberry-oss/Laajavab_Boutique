@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit SKU - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🏷️ Edit SKU</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <p style="color: #7a6a8a; margin-bottom: 1rem;">SKU Code: <strong>{{ sku.sku_code }}</strong></p>
+        
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" step="0.01" value="{{ sku.price }}" required>
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Update SKU</button>
+        <a href="/sku/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Customers - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>👥 Customers</h1>
+    <a href="/customers/create/" class="btn">+ Add Customer</a>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Measurements</th>
+                <th>Total Alterations</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td><strong>{{ customer.name }}</strong></td>
+                <td>{{ customer.phone_number }}</td>
+                <td>{{ customer.email|default:"-" }}</td>
+                <td>
+                    {% if customer.chest or customer.waist or customer.length %}
+                        C: {{ customer.chest|default:"-" }} | W: {{ customer.waist|default:"-" }} | L: {{ customer.length|default:"-" }}
+                    {% else %}
+                        <span style="color: #999;">Not recorded</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-progress">{{ customer.alterations.count }}</span></td>
+                <td>
+                    <a href="/customers/{{ customer.id }}/edit/" class="btn" style="background: linear-gradient(135deg, #fff4e6 0%, #ffe6f0 100%);">✏️ Edit</a>
+                    <a href="/customers/{{ customer.id }}/delete/" class="btn" style="background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);" onclick="return confirm('Are you sure you want to delete this customer?');">🗑️ Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #999;">No customers found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

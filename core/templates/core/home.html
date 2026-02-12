@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🌸 Welcome to Laajavab Boutique</h1>
+    <p style="color: #7a6a8a; font-size: 1.1rem; margin-top: 1rem;">
+        Your complete digital boutique management system
+    </p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">📦</h2>
+        <h3>Categories</h3>
+        <p style="color: #999; margin: 1rem 0;">Manage product categories</p>
+        <a href="/categories/" class="btn">View Categories</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">👗</h2>
+        <h3>Outfit Types</h3>
+        <p style="color: #999; margin: 1rem 0;">Manage outfit types</p>
+        <a href="/outfit-types/" class="btn">View Outfit Types</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">🏷️</h2>
+        <h3>SKU Management</h3>
+        <p style="color: #999; margin: 1rem 0;">Generate and track SKUs</p>
+        <a href="/sku/" class="btn">View SKUs</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">📊</h2>
+        <h3>Inventory</h3>
+        <p style="color: #999; margin: 1rem 0;">Track stock levels</p>
+        <a href="/inventory/" class="btn">View Inventory</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">🚚</h2>
+        <h3>Suppliers</h3>
+        <p style="color: #999; margin: 1rem 0;">Manage suppliers & orders</p>
+        <a href="/suppliers/" class="btn">View Suppliers</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">👥</h2>
+        <h3>Customers</h3>
+        <p style="color: #999; margin: 1rem 0;">Manage customer information</p>
+        <a href="/customers/" class="btn">View Customers</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">✂️</h2>
+        <h3>Alterations</h3>
+        <p style="color: #999; margin: 1rem 0;">Customer alteration services</p>
+        <a href="/alterations/" class="btn">View Alterations</a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <h2 style="font-size: 3rem; margin-bottom: 0.5rem;">🪡</h2>
+        <h3>Tailors</h3>
+        <p style="color: #999; margin: 1rem 0;">Manage tailor information</p>
+        <a href="/tailors/" class="btn">View Tailors</a>
+    </div>
+</div>
+{% endblock %}

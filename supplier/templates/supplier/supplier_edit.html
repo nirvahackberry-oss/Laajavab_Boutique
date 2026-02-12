@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Supplier - Laajavab Boutique{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>🚚 Edit Supplier</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="name">Supplier Name:</label>
+        <input type="text" id="name" name="name" value="{{ supplier.name }}" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ supplier.email }}" required>
+        
+        <label for="region">Region:</label>
+        <input type="text" id="region" name="region" value="{{ supplier.region }}" required>
+        
+        {% if error %}
+        <p style="color: #c00; margin-bottom: 1rem;">{{ error }}</p>
+        {% endif %}
+        
+        <button type="submit" class="btn">Update Supplier</button>
+        <a href="/suppliers/" class="btn" style="background: #e8dff0; margin-left: 1rem;">Cancel</a>
+    </form>
+</div>
+{% endblock %}
