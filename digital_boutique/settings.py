@@ -26,27 +26,38 @@ SECRET_KEY = 'django-insecure-@h+u_el)9nn$-eybievpu!h5&r!-cmc1^(x$3rwe7dt!88)a24
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["192.168.29.31", "192.168.29.32"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'django_filters',
-    'core',
-    'sku',
-    'inventory',
-    'supplier',
-    'alteration',
-    'forecasting',
-    'api',
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.inlines",
+    "unfold.contrib.import_export",
+    "unfold.contrib.guardian",
+    "unfold.contrib.simple_history",
+    "unfold.contrib.location_field",
+    "unfold.contrib.constance",
+    "crispy_forms",
+    "crispy_tailwind",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "django_filters",
+    "core",
+    "sku",
+    "inventory",
+    "supplier",
+    "alteration",
+    "forecasting",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -88,7 +99,7 @@ DATABASES = {
         'NAME': 'laajavab_db',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': 'localhost',
+        'HOST': '192.168.29.32',
         'PORT': '5432',
     }
 }
@@ -137,3 +148,199 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#  unfold configuration
+from django.templatetags.static import static
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
+UNFOLD = {
+    "SITE_TITLE": "Laajavab Boutique",
+    "SITE_HEADER": "Laajavab Boutique",
+    "SITE_DROPDOWN": [
+        {
+            "icon": "diamond",
+            "title": _("My site"),
+            "link": "/",
+        },
+        # ...
+    ],
+    "SITE_URL": "/",
+    "LOGIN": {
+        "image": lambda request: static("core/img/lj_bot.png"),
+    },
+    # "SITE_ICON": lambda request: static("core/img/lj_bot.svg"),
+    "SITE_ICON": lambda request: static("core/img/1.svg"),
+    "SHOW_HISTORY": True,  # show/hide "History" button, default: True
+    "SHOW_VIEW_ON_SITE": True,  # show/hide "View on site" button, default: True
+    "SHOW_BACK_BUTTON": False,  # show/hide "Back" button on changeform in header, default: Fals
+    "BORDER_RADIUS": "10px",
+    "THEME": "light", 
+    "COLORS": {
+        "base": {
+            "50": "#FBF7F2",
+            "100": "#F4ECE2",
+            "200": "#E6D4C3",
+            "300": "#D7BCA6",
+            "400": "#C19A7B",
+            "500": "#A8795D",
+            "600": "#8C5736",
+            "700": "#6E432A",
+            "800": "#4F301D",
+            "900": "#2E1C12",
+        },
+        "primary": {
+            "50": "#FFF4F1",
+            "100": "#FFE2DB",
+            "200": "#FFC2B5",
+            "300": "#FF9E8B",
+            "400": "#F9735C",
+            "500": "#EE9F8D",
+            "600": "#8F4D3F",
+            "700": "#68453D",
+            "800": "#6E2414",
+            "900": "#4F160D",
+        },
+        "font": {
+            "subtle-light": "#8C5736",
+            "subtle-dark": "#D7BCA6",
+            "default-light": "#2E1C12",
+            "default-dark": "#F4ECE2",
+            "important-light": "#1A120B",
+            "important-dark": "#FFFFFF",
+        },
+    },
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "en": "🇬🇧",
+                "fr": "🇫🇷",
+                "nl": "🇧🇪",
+            },
+        },
+    },
+    "SIDEBAR": {
+        "show_search": False,  # Search in applications and models names
+        "command_search": False,  # Replace the sidebar search with the command search
+        "show_all_applications": False,  # Dropdown with all applications and models
+        "navigation": [
+            {
+                "title": _("Dashboard"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Dashboard"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                        "badge_variant": "info",
+                        "badge_style": "solid",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    # {
+                    #     "title": _("Users"),
+                    #     "icon": "people",
+                    #     "link": reverse_lazy("admin:auth_user_changelist"),
+                    # },
+                    # {
+                    #     "title": _("Groups"),
+                    #     "icon": "person",
+                    #     "link": reverse_lazy("admin:auth_group_changelist"),
+                    # },
+                ],
+            },
+            {
+                "title": _("Alterations"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Tailors"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:alteration_tailor_changelist"),
+                    },
+                    {
+                        "title": _("Customers"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:alteration_customer_changelist"),
+                    },
+                    {
+                        "title": _("Alterations"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:alteration_alteration_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Core"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Categories"),
+                        "icon": "category",
+                        "link": reverse_lazy("admin:core_category_changelist"),
+                    },
+                    {
+                        "title": _("Outfit Types"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:core_outfittype_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Inventory"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Discrepancies"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:inventory_discrepancy_changelist"),
+                    },
+                    {
+                        "title": _("Inventory Items"),
+                        "icon": "diamond",
+                        "link": reverse_lazy(
+                            "admin:inventory_inventoryitem_changelist"
+                        ),
+                    },
+                ],
+            },
+            {
+                "title": _("SKU"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Product SKUs"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:sku_productsku_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Suppliers"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Suppliers"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:supplier_supplier_changelist"),
+                    },
+                    {
+                        "title": _("SecureOrderLinks"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:supplier_secureorderlink_changelist"),
+                    },
+                    
+                ],
+            },
+        ],
+    },
+}
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+CRISPY_TEMPLATE_PACK = "tailwind"
