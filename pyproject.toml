@@ -3,7 +3,9 @@ name = "laajavab-project"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
+    "crispy-tailwind>=1.0.3",
     "django>=5.2.11",
+    "django-crispy-forms>=2.5",
     "django-filter>=25.2",
     "django-unfold>=0.79.0",
     "djangorestframework>=3.16.1",
