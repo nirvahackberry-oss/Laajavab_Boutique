@@ -26,28 +26,36 @@ SECRET_KEY = 'django-insecure-@h+u_el)9nn$-eybievpu!h5&r!-cmc1^(x$3rwe7dt!88)a24
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.29.32"]
+ALLOWED_HOSTS = ["192.168.29.31", "192.168.29.32"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'material.admin',
-    # 'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'django_filters',
-    'core',
-    'sku',
-    'inventory',
-    'supplier',
-    'alteration',
-    'forecasting',
-    'api',
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",  
+    "unfold.contrib.inlines",  
+    "unfold.contrib.import_export",  
+    "unfold.contrib.guardian",  
+    "unfold.contrib.simple_history",  
+    "unfold.contrib.location_field",  
+    "unfold.contrib.constance", 
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "django_filters",
+    "core",
+    "sku",
+    "inventory",
+    "supplier",
+    "alteration",
+    "forecasting",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -89,7 +97,7 @@ DATABASES = {
         'NAME': 'laajavab_db',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': 'localhost',
+        'HOST': '192.168.29.32',
         'PORT': '5432',
     }
 }
@@ -138,3 +146,195 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#  unfold configuration
+from django.templatetags.static import static
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
+UNFOLD = {
+    "SITE_TITLE": "Laajavab Boutique",
+    "SITE_HEADER": "Laajavab Boutique",
+    "SITE_HEADER": "Laajavab Boutique Admin",
+    "SITE_SUBHEADER": "Welcome to Laajavab Boutique Admin",
+    "SITE_SUBHEADER": "Manage your boutique with ease",
+    "SITE_DROPDOWN": [
+        {
+            "icon": "diamond",
+            "title": _("My site"),
+            "link": "/",
+        },
+        # ...
+    ],
+    "SITE_URL": "/",
+    "LOGIN": {
+        "image": lambda request: static("core/img/lj_bot.png"),
+        "title": "Welcome to Laajavab Boutique Admin",
+    },
+    # "SITE_ICON": lambda request: static("icon.svg"),  # both modes, optimise for 32px height
+    "SITE_SYMBOL": "speed",  # symbol from icon set
+    "SHOW_HISTORY": True,  # show/hide "History" button, default: True
+    "SHOW_VIEW_ON_SITE": True,  # show/hide "View on site" button, default: True
+    "SHOW_BACK_BUTTON": False,  # show/hide "Back" button on changeform in header, default: Fals
+    "BORDER_RADIUS": "6px",
+    "COLORS": {
+        "base": {
+            "50": "oklch(98.5% .002 247.839)",
+            "100": "oklch(96.7% .003 264.542)",
+            "200": "oklch(92.8% .006 264.531)",
+            "300": "oklch(87.2% .01 258.338)",
+            "400": "oklch(70.7% .022 261.325)",
+            "500": "oklch(55.1% .027 264.364)",
+            "600": "oklch(44.6% .03 256.802)",
+            "700": "oklch(37.3% .034 259.733)",
+            "800": "oklch(27.8% .033 256.848)",
+            "900": "oklch(21% .034 264.665)",
+            "950": "oklch(13% .028 261.692)",
+        },
+        "primary": {
+            "50": "oklch(97.7% .014 308.299)",
+            "100": "oklch(94.6% .033 307.174)",
+            "200": "oklch(90.2% .063 306.703)",
+            "300": "oklch(82.7% .119 306.383)",
+            "400": "oklch(71.4% .203 305.504)",
+            "500": "oklch(62.7% .265 303.9)",
+            "600": "oklch(55.8% .288 302.321)",
+            "700": "oklch(49.6% .265 301.924)",
+            "800": "oklch(43.8% .218 303.724)",
+            "900": "oklch(38.1% .176 304.987)",
+            "950": "oklch(29.1% .149 302.717)",
+        },
+        "font": {
+            "subtle-light": "var(--color-base-500)",  # text-base-500
+            "subtle-dark": "var(--color-base-400)",  # text-base-400
+            "default-light": "var(--color-base-600)",  # text-base-600
+            "default-dark": "var(--color-base-300)",  # text-base-300
+            "important-light": "var(--color-base-900)",  # text-base-900
+            "important-dark": "var(--color-base-100)",  # text-base-100
+        },
+    },
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "en": "🇬🇧",
+                "fr": "🇫🇷",
+                "nl": "🇧🇪",
+            },
+        },
+    },
+    "SIDEBAR": {
+        "show_search": False,  # Search in applications and models names
+        "command_search": False,  # Replace the sidebar search with the command search
+        "show_all_applications": False,  # Dropdown with all applications and models
+        "navigation": [
+            {
+                "title": _("Dashboard"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Dashboard"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                        "badge_variant": "info",
+                        "badge_style": "solid",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    # {
+                    #     "title": _("Users"),
+                    #     "icon": "people",
+                    #     "link": reverse_lazy("admin:auth_user_changelist"),
+                    # },
+                    # {
+                    #     "title": _("Groups"),
+                    #     "icon": "person",
+                    #     "link": reverse_lazy("admin:auth_group_changelist"),
+                    # },
+                ],
+            },
+            {
+                "title": _("Alterations"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Tailors"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:alteration_tailor_changelist"),
+                    },
+                    {
+                        "title": _("Customers"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:alteration_customer_changelist"),
+                    },
+                    {
+                        "title": _("Alterations"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:alteration_alteration_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Core"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Categories"),
+                        "icon": "category",
+                        "link": reverse_lazy("admin:core_category_changelist"),
+                    },
+                    {
+                        "title": _("Outfit Types"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:core_outfittype_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Inventory"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Discrepancies"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:inventory_discrepancy_changelist"),
+                    },
+                    {
+                        "title": _("Inventory Items"),
+                        "icon": "diamond",
+                        "link": reverse_lazy(
+                            "admin:inventory_inventoryitem_changelist"
+                        ),
+                    },
+                ],
+            },
+            {
+                "title": _("SKU"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Product SKUs"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:sku_productsku_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Suppliers"),
+                "separator": True,  # Top border
+                "collapsible": True,  # Collapsible group of links
+                "items": [
+                    {
+                        "title": _("Suppliers"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:supplier_supplier_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
+}

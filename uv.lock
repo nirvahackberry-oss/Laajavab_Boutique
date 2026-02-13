@@ -378,12 +378,16 @@ wheels = [
 ]
 
 [[package]]
-name = "django-material-admin"
-version = "1.8.6"
+name = "django-unfold"
+version = "0.79.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e4/64/8d3ac319bc3c6a31463a4ed95ebbaa04a56830a117e2df82df2f7517a521/django-material-admin-1.8.6.tar.gz", hash = "sha256:2de97e804a55d478d1776d2fe011970087c6756b5998e528b673fbb6e1f8e5c4", size = 678099, upload-time = "2021-12-25T19:37:19.822Z" }
+dependencies = [
+    { name = "django", version = "5.2.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "django", version = "6.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f7/29/4070c59b13ef2a22274780390e738d85b583bde3a276056a17689fa8cd18/django_unfold-0.79.0.tar.gz", hash = "sha256:16ef6a097130d54785b5dea03c40b3593bd31039fd13df44b6d9ac3a7897ba46", size = 1110455, upload-time = "2026-02-11T10:37:07.581Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e8/cd/d3700551f6fc6636bcb9951f94b0ac008611e80b7e555a9028a936ae14d9/django_material_admin-1.8.6-py3-none-any.whl", hash = "sha256:cbd44161c6e8bed8e4fe80a68f90971d22c8a1bc7e731360bec08e6f950917f9", size = 737425, upload-time = "2021-12-25T19:37:17.019Z" },
+    { url = "https://files.pythonhosted.org/packages/13/e3/022ed3fc8c0d37113871c5319d464ff0196061e4f7d95700a73dc8019095/django_unfold-0.79.0-py3-none-any.whl", hash = "sha256:e1642f43555a7aab7916b3c2d70fa22391b48110971438bc6fb6fc5081c12d97", size = 1225853, upload-time = "2026-02-11T10:37:08.868Z" },
 ]
 
 [[package]]
@@ -611,7 +615,7 @@ dependencies = [
     { name = "django", version = "5.2.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "django-filter" },
-    { name = "django-material-admin" },
+    { name = "django-unfold" },
     { name = "djangorestframework" },
     { name = "markdown" },
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -631,7 +635,7 @@ dependencies = [
 requires-dist = [
     { name = "django", specifier = ">=5.2.11" },
     { name = "django-filter", specifier = ">=25.2" },
-    { name = "django-material-admin", specifier = ">=1.8.6" },
+    { name = "django-unfold", specifier = ">=0.79.0" },
     { name = "djangorestframework", specifier = ">=3.16.1" },
     { name = "markdown", specifier = ">=3.10.2" },
     { name = "pandas", specifier = ">=2.3.3" },
