@@ -122,9 +122,6 @@ class SupplierAdmin(ModelAdmin):
         return JsonResponse({'url': request.build_absolute_uri(relative_url)})
 
 
-
-
-
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 1
