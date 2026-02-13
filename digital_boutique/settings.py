@@ -330,6 +330,12 @@ UNFOLD = {
                         "icon": "diamond",
                         "link": reverse_lazy("admin:supplier_supplier_changelist"),
                     },
+                    {
+                        "title": _("SecureOrderLinks"),
+                        "icon": "diamond",
+                        "link": reverse_lazy("admin:supplier_secureorderlink_changelist"),
+                    },
+                    
                 ],
             },
         ],
