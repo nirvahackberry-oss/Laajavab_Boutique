@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Supplier Order Form</title>
+</head>
+<body>
+  <h1>Place Order</h1>
+  {% if supplier %}
+    <p>Supplier: {{ supplier.name }} ({{ supplier.email }})</p>
+  {% else %}
+    <p>Please provide your supplier details</p>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if not supplier %}
+      <label>Name: <input type="text" name="supplier_name" required></label><br>
+      <label>Email: <input type="email" name="supplier_email" required></label><br>
+      <label>Region: <input type="text" name="supplier_region"></label><br>
+    {% endif %}
+
+    <label>Outfit Type: <input type="text" name="outfit_type" required></label><br>
+    <label>Category:
+      <select name="category">
+        <option value="">--Select--</option>
+        {% for c in categories %}
+          <option value="{{ c.pk }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+    <label>Size: <input type="text" name="size"></label><br>
+    <label>Quantity: <input type="number" name="quantity" min="1" value="1"></label><br>
+    <label>Price: <input type="number" name="price" step="0.01"></label><br>
+    <label>Image: <input type="file" name="image" accept="image/*"></label><br>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>

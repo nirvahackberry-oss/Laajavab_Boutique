@@ -2,7 +2,12 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Supplier, Order, OrderItem
+from django.utils import timezone
+from django.urls import reverse
+from django.core.files.base import ContentFile
+import io
+import qrcode
+from .models import Supplier, Order, OrderItem, SecureOrderLink, PurchaseOrder, PurchaseOrderItem
 from .serializers import SupplierSerializer, OrderSerializer, OrderItemSerializer
 
 def supplier_list(request):
@@ -46,6 +51,87 @@ def supplier_delete(request, pk):
     supplier = get_object_or_404(Supplier, pk=pk)
     supplier.delete()
     return redirect('/suppliers/')
+
+
+def secure_order_form(request, token):
+    # public supplier-facing form accessed via secure token
+    link = get_object_or_404(SecureOrderLink, token=token)
+    # optional expiry check
+    if link.expires_at and link.expires_at < timezone.now():
+        return render(request, 'supplier/link_expired.html', {'link': link})
+
+    if request.method == 'POST':
+        # supplier: either linked or create from submitted info
+        supplier = link.supplier
+        if not supplier:
+            name = request.POST.get('supplier_name')
+            email = request.POST.get('supplier_email')
+            region = request.POST.get('supplier_region', '')
+            supplier = Supplier.objects.create(name=name or 'Unknown', email=email or '', region=region)
+
+        po = PurchaseOrder.objects.create(supplier=supplier, secure_link=link)
+
+        outfit_type = request.POST.get('outfit_type')
+        category_id = request.POST.get('category')
+        size = request.POST.get('size')
+        quantity = int(request.POST.get('quantity', '0') or 0)
+        price = request.POST.get('price') or '0'
+
+        category = None
+        if category_id:
+            from core.models import Category
+            try:
+                category = Category.objects.get(pk=category_id)
+            except Category.DoesNotExist:
+                category = None
+
+        item = PurchaseOrderItem.objects.create(
+            purchase_order=po,
+            outfit_type=outfit_type or '',
+            category=category,
+            size=size or '',
+            quantity=quantity,
+            price=price or '0'
+        )
+
+        # handle image
+        image = request.FILES.get('image')
+        if image:
+            item.image.save(image.name, image)
+
+        # generate simple SKU
+        item.sku = f"SKU-{po.pk or 'X'}-{item.pk}"
+        item.save()
+
+        # generate QR containing PO id and quick link
+        data = {
+            'po_id': po.pk,
+            'url': request.build_absolute_uri(reverse('supplier:po_qr', args=[po.pk]))
+        }
+
+        qr_img = qrcode.make(str(data))
+        buffer = io.BytesIO()
+        qr_img.save(buffer, 'PNG')
+        buffer.seek(0)
+        po.qr_code.save(f'po_{po.pk}_qr.png', ContentFile(buffer.read()))
+        po.save()
+
+        # mark link used
+        link.used = True
+        link.save()
+
+        return redirect(reverse('supplier:po_qr', args=[po.pk]))
+
+    # GET
+    from core.models import Category
+    categories = Category.objects.all()
+    supplier = link.supplier
+    return render(request, 'supplier/order_form.html', {'link': link, 'categories': categories, 'supplier': supplier})
+
+
+def po_qr_view(request, pk):
+    po = get_object_or_404(PurchaseOrder, pk=pk)
+    return render(request, 'supplier/po_qr.html', {'po': po})
 
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
