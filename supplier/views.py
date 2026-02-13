@@ -55,7 +55,9 @@ def supplier_delete(request, pk):
 
 def secure_order_form(request, token):
     # public supplier-facing form accessed via secure token
-    link = get_object_or_404(SecureOrderLink, token=token)
+    link = SecureOrderLink.objects.select_related('supplier').filter(token=token).first()
+    if not link:
+        return render(request, 'supplier/link_invalid.html', status=404)
     # optional expiry check
     if link.expires_at and link.expires_at < timezone.now():
         return render(request, 'supplier/link_expired.html', {'link': link})
