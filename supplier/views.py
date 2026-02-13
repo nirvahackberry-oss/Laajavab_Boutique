@@ -6,6 +6,9 @@ from django.utils import timezone
 from django.urls import reverse
 from django.core.files.base import ContentFile
 import io
+import json
+import uuid
+
 import qrcode
 from .models import Supplier, Order, OrderItem, SecureOrderLink, PurchaseOrder, PurchaseOrderItem
 from .serializers import SupplierSerializer, OrderSerializer, OrderItemSerializer
@@ -55,7 +58,9 @@ def supplier_delete(request, pk):
 
 def secure_order_form(request, token):
     # public supplier-facing form accessed via secure token
-    link = get_object_or_404(SecureOrderLink, token=token)
+    link = SecureOrderLink.objects.select_related('supplier').filter(token=token).first()
+    if not link:
+        return render(request, 'supplier/link_invalid.html', status=404)
     # optional expiry check
     if link.expires_at and link.expires_at < timezone.now():
         return render(request, 'supplier/link_expired.html', {'link': link})
@@ -103,17 +108,26 @@ def secure_order_form(request, token):
         item.sku = f"SKU-{po.pk or 'X'}-{item.pk}"
         item.save()
 
-        # generate QR containing PO id and quick link
+        # generate unique QR per submitted form/PO
+        submission_ref = uuid.uuid4().hex
         data = {
+            'submission_ref': submission_ref,
             'po_id': po.pk,
-            'url': request.build_absolute_uri(reverse('supplier:po_qr', args=[po.pk]))
+            'supplier_id': supplier.pk,
+            'created_at': timezone.now().isoformat(),
+            'outfit_type': outfit_type or '',
+            'size': size or '',
+            'quantity': quantity,
+            'price': str(price),
+            'url': request.build_absolute_uri(reverse('supplier:po_qr', args=[po.pk])),
         }
 
-        qr_img = qrcode.make(str(data))
+        qr_payload = json.dumps(data, sort_keys=True)
+        qr_img = qrcode.make(qr_payload)
         buffer = io.BytesIO()
         qr_img.save(buffer, 'PNG')
         buffer.seek(0)
-        po.qr_code.save(f'po_{po.pk}_qr.png', ContentFile(buffer.read()))
+        po.qr_code.save(f'po_{po.pk}_qr_{submission_ref}.png', ContentFile(buffer.read()))
         po.save()
 
         # mark link used
