@@ -93,14 +93,29 @@ class SecureOrderLinkAdmin(admin.ModelAdmin):
             relative_url,
         )
 
+    def has_add_permission(self, request):
+        return False
 
-class PurchaseOrderItemInline(admin.TabularInline):
-    model = PurchaseOrderItem
-    extra = 1
+    @admin.display(description='Secure form URL')
+    def secure_form_url(self, obj):
+        relative_url = reverse('supplier:secure_order_form', args=[obj.token])
+        return format_html(
+            '<div>'
+            '<a href="{0}" target="_blank" id="secure-link-{1}">{0}</a> '
+            '<button type="button" onclick="navigator.clipboard.writeText(window.location.origin + \"{0}\")">Copy</button>'
+            '</div>',
+            relative_url,
+            obj.pk,
+        )
+
+    @admin.display(description='Copy URL')
+    def copy_url_button(self, obj):
+        relative_url = reverse('supplier:secure_order_form', args=[obj.token])
+        return format_html(
+            '<button type="button" onclick="navigator.clipboard.writeText(window.location.origin + \"{0}\")">Copy</button>',
+            relative_url,
+        )
 
 
-@admin.register(PurchaseOrder)
-class PurchaseOrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'supplier', 'status', 'created_at']
-    list_filter = ['status', 'created_at']
-    inlines = [PurchaseOrderItemInline]
+# PurchaseOrder is intentionally not registered in Django admin.
+# Supplier order submission is done via supplier-facing secure form link only.
