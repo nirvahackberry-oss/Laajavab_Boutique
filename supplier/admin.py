@@ -13,7 +13,7 @@ from .models import Supplier, Order, OrderItem, SecureOrderLink
 
 @admin.register(Supplier)
 class SupplierAdmin(admin.ModelAdmin):
-    list_display = ['name', 'email', 'region', 'create_secure_link_button']
+    list_display = ['name', 'email', 'region']
     search_fields = ['name', 'email']
     readonly_fields = ['supplier_secure_form_url']
 
@@ -34,26 +34,26 @@ class SupplierAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    @admin.display(description='Secure link')
-    def create_secure_link_button(self, obj):
-        url = reverse('admin:supplier_create_secure_link', args=[obj.pk])
-        return format_html(
-            '<button type="button" class="button" onclick="return (async function(btn){{'
-            'if(btn.dataset.loading===\'1\'){{return false;}}'
-            'btn.dataset.loading=\'1\';'
-            'const originalText=btn.textContent;'
-            'btn.textContent=\'Creating...\';'
-            'try{{'
-            'const response=await fetch(\'{0}\',{{method:\'POST\',headers:{{\'X-CSRFToken\':(document.cookie.match(/csrftoken=([^;]+)/)||[])[1]||\'\'}}}});'
-            'const data=await response.json();'
-            'if(!response.ok){{throw new Error(data.error||\'Unable to create secure link\');}}'
-            'const copied=await navigator.clipboard.writeText(data.url).then(()=>true).catch(()=>false);'
-            'window.prompt((copied?\'Secure link copied:\\n\':\'Secure link created (copy manually):\\n\')+data.url,data.url);'
-            '}}catch(err){{window.alert(err.message);}}'
-            'finally{{btn.dataset.loading=\'0\';btn.textContent=originalText;}}'
-            '}})(this);">Create secure form link</button>',
-            url,
-        )
+    # @admin.display(description='Secure link')
+    # def create_secure_link_button(self, obj):
+    #     url = reverse('admin:supplier_create_secure_link', args=[obj.pk])
+    #     return format_html(
+    #         '<button type="button" class="button" onclick="return (async function(btn){{'
+    #         'if(btn.dataset.loading===\'1\'){{return false;}}'
+    #         'btn.dataset.loading=\'1\';'
+    #         'const originalText=btn.textContent;'
+    #         'btn.textContent=\'Creating...\';'
+    #         'try{{'
+    #         'const response=await fetch(\'{0}\',{{method:\'POST\',headers:{{\'X-CSRFToken\':(document.cookie.match(/csrftoken=([^;]+)/)||[])[1]||\'\'}}}});'
+    #         'const data=await response.json();'
+    #         'if(!response.ok){{throw new Error(data.error||\'Unable to create secure link\');}}'
+    #         'const copied=await navigator.clipboard.writeText(data.url).then(()=>true).catch(()=>false);'
+    #         'window.prompt((copied?\'Secure link copied:\\n\':\'Secure link created (copy manually):\\n\')+data.url,data.url);'
+    #         '}}catch(err){{window.alert(err.message);}}'
+    #         'finally{{btn.dataset.loading=\'0\';btn.textContent=originalText;}}'
+    #         '}})(this);">Create secure form link</button>',
+    #         url,
+    #     )
 
     @admin.display(description='Secure form URL')
     def supplier_secure_form_url(self, obj):
@@ -120,10 +120,7 @@ class SupplierAdmin(admin.ModelAdmin):
         return JsonResponse({'url': request.build_absolute_uri(relative_url)})
 
 
-    @admin.display(description='Secure link')
-    def create_secure_link_button(self, obj):
-        url = f"{reverse('admin:supplier_secureorderlink_add')}?supplier={obj.pk}"
-        return format_html('<a class="button" href="{}">Create secure form link</a>', url)
+
 
 
 class OrderItemInline(admin.TabularInline):
