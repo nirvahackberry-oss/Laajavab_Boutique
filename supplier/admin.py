@@ -10,6 +10,7 @@ from django.utils.html import format_html
 from .models import Supplier, Order, OrderItem, SecureOrderLink
 
 
+
 @admin.register(Supplier)
 class SupplierAdmin(admin.ModelAdmin):
     list_display = ['name', 'email', 'region', 'create_secure_link_button']
@@ -117,6 +118,12 @@ class SupplierAdmin(admin.ModelAdmin):
         )
         relative_url = reverse('supplier:secure_order_form', args=[link.token])
         return JsonResponse({'url': request.build_absolute_uri(relative_url)})
+
+
+    @admin.display(description='Secure link')
+    def create_secure_link_button(self, obj):
+        url = f"{reverse('admin:supplier_secureorderlink_add')}?supplier={obj.pk}"
+        return format_html('<a class="button" href="{}">Create secure form link</a>', url)
 
 
 class OrderItemInline(admin.TabularInline):
