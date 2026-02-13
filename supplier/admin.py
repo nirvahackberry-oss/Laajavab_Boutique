@@ -86,26 +86,15 @@ class SupplierAdmin(ModelAdmin):
         relative_url = reverse('supplier:secure_order_form', args=[latest_link.token])
         return format_html(
             '<div>'
-            '<a href="{0}" target="_blank">{0}</a> '
-            '<button type="button" onclick="navigator.clipboard.writeText(window.location.origin + \"{0}\")">Copy</button> '
-            '<button type="button" class="button" onclick="return (async function(btn){{'
-            'if(btn.dataset.loading===\'1\'){{return false;}}'
-            'btn.dataset.loading=\'1\';'
-            'const originalText=btn.textContent;'
-            'btn.textContent=\'Creating...\';'
-            'try{{'
-            'const response=await fetch(\'{1}\',{{method:\'POST\',headers:{{\'X-CSRFToken\':(document.cookie.match(/csrftoken=([^;]+)/)||[])[1]||\'\'}}}});'
-            'const data=await response.json();'
-            'if(!response.ok){{throw new Error(data.error||\'Unable to create secure link\');}}'
-            'const copied=await navigator.clipboard.writeText(data.url).then(()=>true).catch(()=>false);'
-            'window.prompt((copied?\'New secure link copied:\\n\':\'New secure link created (copy manually):\\n\')+data.url,data.url);'
-            'window.location.reload();'
-            '}}catch(err){{window.alert(err.message);}}'
-            'finally{{btn.dataset.loading=\'0\';btn.textContent=originalText;}}'
-            '}})(this);">Generate new</button>'
+            '<div><a href="{0}" target="_blank" style="word-break:break-all;">{0}</a></div>'
+            '<div style="margin-top:10px; display:flex; gap:8px;">'
+            '<button type="button" class="button" onclick="{1}">Copy link</button>'
+            '<button type="button" class="button" onclick="{2}">Generate new</button>'
+            '</div>'
             '</div>',
             relative_url,
-            create_url,
+            self._copy_js(relative_url),
+            self._create_link_js(create_url, 'New secure link'),
         )
 
     def create_secure_link_view(self, request, supplier_id):
@@ -148,10 +137,15 @@ class SecureOrderLinkAdmin(admin.ModelAdmin):
     @admin.display(description='Copy URL')
     def copy_url_button(self, obj):
         relative_url = reverse('supplier:secure_order_form', args=[obj.token])
-        return format_html(
-            '<button type="button" onclick="navigator.clipboard.writeText(window.location.origin + \"{0}\")">Copy</button>',
-            relative_url,
+        copy_js = (
+            "return (function(){"
+            f"const url=window.location.origin + '{relative_url}';"
+            "const fallback=function(text){try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');document.body.removeChild(ta);return ok;}catch(e){return false;}};"
+            "if(navigator.clipboard && window.isSecureContext){navigator.clipboard.writeText(url).then(function(){window.alert('Link copied to clipboard.');}).catch(function(){if(!fallback(url)){window.prompt('Copy this link:',url);}});}"
+            "else{if(!fallback(url)){window.prompt('Copy this link:',url);}}"
+            "return false;})();"
         )
+        return format_html('<button type="button" class="button" onclick="{}">Copy</button>', copy_js)
 
 
 # PurchaseOrder is intentionally not registered in Django admin.
