@@ -2,39 +2,139 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Supplier Order Form</title>
+  <style>
+    :root {
+      --bg: #f7f3ef;
+      --card: #ffffff;
+      --border: #e6d5c6;
+      --text: #2e2219;
+      --muted: #7a6859;
+      --primary: #9a5c2f;
+      --primary-dark: #7e4723;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    .wrap {
+      max-width: 760px;
+      margin: 36px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(46, 34, 25, 0.06);
+    }
+    h1 { margin: 0 0 8px; font-size: 34px; }
+    .sub { color: var(--muted); margin: 0 0 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      height: 42px;
+      padding: 0 12px;
+      font-size: 15px;
+      color: var(--text);
+    }
+    input[type="file"] { padding: 8px 10px; height: auto; }
+    .actions { margin-top: 20px; display: flex; gap: 12px; }
+    .btn {
+      border: 0;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      height: 42px;
+      padding: 0 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <h1>Place Order</h1>
-  {% if supplier %}
-    <p>Supplier: {{ supplier.name }} ({{ supplier.email }})</p>
-  {% else %}
-    <p>Please provide your supplier details</p>
-  {% endif %}
+  <div class="wrap">
+    <div class="card">
+      <h1>Place Order</h1>
+      {% if supplier %}
+        <p class="sub">Supplier: <strong>{{ supplier.name }}</strong> ({{ supplier.email }})</p>
+      {% else %}
+        <p class="sub">Please provide supplier details and order information.</p>
+      {% endif %}
 
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {% if not supplier %}
-      <label>Name: <input type="text" name="supplier_name" required></label><br>
-      <label>Email: <input type="email" name="supplier_email" required></label><br>
-      <label>Region: <input type="text" name="supplier_region"></label><br>
-    {% endif %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="grid">
+          {% if not supplier %}
+            <div>
+              <label for="supplier_name">Supplier Name</label>
+              <input id="supplier_name" type="text" name="supplier_name" required>
+            </div>
+            <div>
+              <label for="supplier_email">Supplier Email</label>
+              <input id="supplier_email" type="email" name="supplier_email" required>
+            </div>
+            <div class="full">
+              <label for="supplier_region">Region</label>
+              <input id="supplier_region" type="text" name="supplier_region">
+            </div>
+          {% endif %}
 
-    <label>Outfit Type: <input type="text" name="outfit_type" required></label><br>
-    <label>Category:
-      <select name="category">
-        <option value="">--Select--</option>
-        {% for c in categories %}
-          <option value="{{ c.pk }}">{{ c.name }}</option>
-        {% endfor %}
-      </select>
-    </label><br>
-    <label>Size: <input type="text" name="size"></label><br>
-    <label>Quantity: <input type="number" name="quantity" min="1" value="1"></label><br>
-    <label>Price: <input type="number" name="price" step="0.01"></label><br>
-    <label>Image: <input type="file" name="image" accept="image/*"></label><br>
+          <div>
+            <label for="outfit_type">Outfit Type</label>
+            <input id="outfit_type" type="text" name="outfit_type" required>
+          </div>
 
-    <button type="submit">Submit</button>
-  </form>
+          <div>
+            <label for="category">Category</label>
+            <select id="category" name="category">
+              <option value="">Select category</option>
+              {% for c in categories %}
+                <option value="{{ c.pk }}">{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="size">Size</label>
+            <input id="size" type="text" name="size">
+          </div>
+
+          <div>
+            <label for="quantity">Quantity</label>
+            <input id="quantity" type="number" name="quantity" min="1" value="1">
+          </div>
+
+          <div>
+            <label for="price">Price</label>
+            <input id="price" type="number" name="price" step="0.01">
+          </div>
+
+          <div>
+            <label for="image">Image</label>
+            <input id="image" type="file" name="image" accept="image/*">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" type="submit">Submit Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>
