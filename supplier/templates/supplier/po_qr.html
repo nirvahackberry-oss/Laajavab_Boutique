@@ -2,20 +2,101 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Purchase Order QR</title>
+  <style>
+    body { margin: 0; background: #f7f3ef; font-family: "Segoe UI", Arial, sans-serif; color: #2e2219; }
+    .wrap { max-width: 980px; margin: 30px auto; padding: 0 16px; }
+    .card { background: #fff; border: 1px solid #e6d5c6; border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+    h1,h2 { margin-top: 0; }
+    .meta { color: #6f5f52; margin-bottom: 14px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+    .qr img { width: min(320px, 100%); border: 1px solid #e6d5c6; border-radius: 12px; background: #fff; padding: 10px; }
+    .btn { margin-top: 10px; background: #9a5c2f; color: #fff; border: 0; border-radius: 10px; height: 40px; padding: 0 16px; font-weight: 700; cursor: pointer; }
+    .btn.secondary { background: #4c6f8f; }
+    .btn.warn { background: #b64848; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid #eadfd5; text-align: left; padding: 10px 8px; font-size: 14px; }
+    th { color: #7a6859; }
+    .status { font-weight: 700; }
+    .msg { padding: 10px 12px; border-radius: 8px; margin: 0 0 12px; }
+    .msg.success { background: #e8f7ea; color: #1e6b2b; }
+    .msg.warning { background: #fff5e8; color: #8a5b21; }
+  </style>
 </head>
 <body>
-  <h1>Purchase Order {{ po.pk }}</h1>
-  <p>Supplier: {{ po.supplier.name }}</p>
-  <p>Status: {{ po.status }}</p>
+  <div class="wrap">
+    <div class="card">
+      <h1>Purchase Order {{ po.pk }}</h1>
+      <p class="meta">
+        Supplier: <strong>{{ po.supplier.name }}</strong> ·
+        Status: <span class="status">{{ po.status }}</span>
+      </p>
 
-  {% if po.qr_code %}
-    <div>
-      <img src="{{ po.qr_code.url }}" alt="QR Code" style="width:300px;height:300px;">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="row">
+        <div class="qr">
+          {% if po.qr_code %}
+            <img src="{{ po.qr_code.url }}" alt="QR Code">
+            <br>
+            <button class="btn secondary" onclick="window.print()">Print QR</button>
+          {% else %}
+            <p>No QR generated.</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <h2>How to scan</h2>
+          <ol>
+            <li>Open camera or any QR scanner app.</li>
+            <li>Scan this QR image.</li>
+            <li>The scanner opens this PO details page with items and actions.</li>
+          </ol>
+          <form method="post" style="display:flex; gap:10px; flex-wrap:wrap;">
+            {% csrf_token %}
+            <button class="btn" type="submit" name="action" value="verify">Order verified</button>
+            <button class="btn warn" type="submit" name="action" value="discrepancy">Add to discrepancy</button>
+          </form>
+        </div>
+      </div>
     </div>
-    <button onclick="window.print()">Print QR</button>
-  {% else %}
-    <p>No QR generated.</p>
-  {% endif %}
+
+    <div class="card">
+      <h2>Submitted items</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Outfit</th>
+            <th>Category</th>
+            <th>Size</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>SKU</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in po.items.all %}
+            <tr>
+              <td>{{ item.outfit_type }}</td>
+              <td>{% if item.category %}{{ item.category.name }}{% else %}-{% endif %}</td>
+              <td>{{ item.size|default:'-' }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price }}</td>
+              <td>{{ item.sku|default:'-' }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">No items found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </body>
 </html>
