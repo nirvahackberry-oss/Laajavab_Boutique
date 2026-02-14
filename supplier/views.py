@@ -7,7 +7,6 @@ from django.utils import timezone
 from django.urls import reverse
 from django.core.files.base import ContentFile
 import io
-import json
 import uuid
 
 import qrcode
@@ -114,22 +113,13 @@ def secure_order_form(request, token):
         item.save()
 
         # generate unique QR per submitted form/PO.
-        # QR includes URL that inventory/admin can scan and open directly.
+        # Encode a scan URL (not raw JSON) so scanner opens browser directly.
         submission_ref = uuid.uuid4().hex
-        data = {
-            'submission_ref': submission_ref,
-            'po_id': po.pk,
-            'supplier_id': supplier.pk,
-            'created_at': timezone.now().isoformat(),
-            'outfit_type': outfit_type or '',
-            'size': size or '',
-            'quantity': quantity,
-            'price': str(price),
-            'url': request.build_absolute_uri(reverse('supplier:po_qr', args=[po.pk])),
-        }
+        scan_url = request.build_absolute_uri(
+            reverse('supplier:po_qr', args=[po.pk]) + f'?ref={submission_ref}'
+        )
 
-        qr_payload = json.dumps(data, sort_keys=True)
-        qr_img = qrcode.make(qr_payload)
+        qr_img = qrcode.make(scan_url)
         buffer = io.BytesIO()
         qr_img.save(buffer, 'PNG')
         buffer.seek(0)
@@ -165,7 +155,20 @@ def po_qr_view(request, pk):
             messages.warning(request, 'Order marked for discrepancy review.')
         return redirect(reverse('supplier:po_qr', args=[po.pk]))
 
-    return render(request, 'supplier/po_qr.html', {'po': po})
+    latest_item = po.items.order_by('-id').first()
+    scan_details = {
+        'submission_ref': request.GET.get('ref', '-'),
+        'po_id': po.pk,
+        'supplier_id': po.supplier_id,
+        'created_at': po.created_at,
+        'outfit_type': latest_item.outfit_type if latest_item else '-',
+        'size': latest_item.size if latest_item else '-',
+        'quantity': latest_item.quantity if latest_item else '-',
+        'price': latest_item.price if latest_item else '-',
+    }
+
+    return render(request, 'supplier/po_qr.html', {'po': po, 'scan_details': scan_details})
+
 
 
 class SupplierViewSet(viewsets.ModelViewSet):
