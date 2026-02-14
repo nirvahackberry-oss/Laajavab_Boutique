@@ -30,7 +30,8 @@
       <h1>Purchase Order {{ po.pk }}</h1>
       <p class="meta">
         Supplier: <strong>{{ po.supplier.name }}</strong> ·
-        Status: <span class="status">{{ po.status }}</span>
+        Status: <span class="status">{{ po.status }}</span> ·
+        Discrepancy: <strong>{% if po.is_discrepancy %}Yes{% else %}No{% endif %}</strong>
       </p>
 
       {% if messages %}
