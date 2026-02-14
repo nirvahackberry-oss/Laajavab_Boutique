@@ -140,7 +140,7 @@ def secure_order_form(request, token):
 
 
 def po_qr_view(request, pk):
-    po = get_object_or_404(PurchaseOrder.objects.select_related('supplier').prefetch_related('items__category'), pk=pk)
+    po = get_object_or_404(PurchaseOrder.objects.select_related('supplier').prefetch_related('purchaseorderitem_set__category'), pk=pk)
     ref = request.GET.get('ref', '').strip()
 
     if request.method == 'POST':
@@ -162,13 +162,13 @@ def po_qr_view(request, pk):
             target = f"{target}?ref={posted_ref}"
         return redirect(target)
 
-    latest_item = po.items.order_by('-id').first()
+    latest_item = PurchaseOrderItem.objects.filter(purchase_order=po).order_by('-id').first()
     scan_details = None
     if ref:
         scan_details = {
             'submission_ref': ref,
             'po_id': po.pk,
-            'supplier_id': po.supplier_id,
+            'supplier_id': po.supplier.pk,
             'created_at': po.created_at,
             'outfit_type': latest_item.outfit_type if latest_item else '-',
             'size': latest_item.size if latest_item else '-',

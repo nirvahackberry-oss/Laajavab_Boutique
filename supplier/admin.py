@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import path, reverse
@@ -11,7 +12,7 @@ from .models import Supplier, Order, OrderItem, SecureOrderLink
 
 
 @admin.register(Supplier)
-class SupplierAdmin(admin.ModelAdmin):
+class SupplierAdmin(ModelAdmin):
     list_display = ['name', 'email', 'region', 'create_secure_link_button']
     search_fields = ['name', 'email']
     readonly_fields = ['supplier_secure_form_url']
@@ -135,7 +136,7 @@ class OrderItemInline(admin.TabularInline):
 
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ModelAdmin):
     list_display = ['id', 'supplier', 'category', 'outfit_type', 'status', 'created_at']
     list_filter = ['status', 'category', 'created_at']
     search_fields = ['order_sku', 'supplier__name']
@@ -143,7 +144,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(SecureOrderLink)
-class SecureOrderLinkAdmin(admin.ModelAdmin):
+class SecureOrderLinkAdmin(ModelAdmin):
     list_display = ['token', 'supplier', 'created_by', 'used', 'created_at', 'expires_at', 'copy_url_button']
     readonly_fields = ['token', 'supplier', 'created_by', 'expires_at', 'used', 'created_at']
     fields = ['supplier', 'created_by', 'expires_at', 'used', 'token', 'created_at']
