@@ -1,33 +1,40 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
 from django.core.files.base import ContentFile
 import io
+import json
+import uuid
+
 import qrcode
 from .models import Supplier, Order, OrderItem, SecureOrderLink, PurchaseOrder, PurchaseOrderItem
 from .serializers import SupplierSerializer, OrderSerializer, OrderItemSerializer
+
 
 def supplier_list(request):
     suppliers = Supplier.objects.all()
     orders = Order.objects.select_related('supplier', 'category').all()[:10]
     return render(request, 'supplier/supplier_list.html', {'suppliers': suppliers, 'orders': orders})
 
+
 def supplier_create(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
         region = request.POST.get('region', '').strip()
-        
+
         if not all([name, email, region]):
             return render(request, 'supplier/supplier_create.html', {'error': 'All fields are required'})
-        
+
         Supplier.objects.create(name=name, email=email, region=region)
         return redirect('/suppliers/')
-    
+
     return render(request, 'supplier/supplier_create.html')
+
 
 def supplier_edit(request, pk):
     supplier = get_object_or_404(Supplier, pk=pk)
@@ -35,17 +42,18 @@ def supplier_edit(request, pk):
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
         region = request.POST.get('region', '').strip()
-        
+
         if not all([name, email, region]):
             return render(request, 'supplier/supplier_edit.html', {'supplier': supplier, 'error': 'All fields are required'})
-        
+
         supplier.name = name
         supplier.email = email
         supplier.region = region
         supplier.save()
         return redirect('/suppliers/')
-    
+
     return render(request, 'supplier/supplier_edit.html', {'supplier': supplier})
+
 
 def supplier_delete(request, pk):
     supplier = get_object_or_404(Supplier, pk=pk)
@@ -55,7 +63,9 @@ def supplier_delete(request, pk):
 
 def secure_order_form(request, token):
     # public supplier-facing form accessed via secure token
-    link = get_object_or_404(SecureOrderLink, token=token)
+    link = SecureOrderLink.objects.select_related('supplier').filter(token=token).first()
+    if not link:
+        return render(request, 'supplier/link_invalid.html', status=404)
     # optional expiry check
     if link.expires_at and link.expires_at < timezone.now():
         return render(request, 'supplier/link_expired.html', {'link': link})
@@ -103,17 +113,27 @@ def secure_order_form(request, token):
         item.sku = f"SKU-{po.pk or 'X'}-{item.pk}"
         item.save()
 
-        # generate QR containing PO id and quick link
+        # generate unique QR per submitted form/PO.
+        # QR includes URL that inventory/admin can scan and open directly.
+        submission_ref = uuid.uuid4().hex
         data = {
+            'submission_ref': submission_ref,
             'po_id': po.pk,
-            'url': request.build_absolute_uri(reverse('supplier:po_qr', args=[po.pk]))
+            'supplier_id': supplier.pk,
+            'created_at': timezone.now().isoformat(),
+            'outfit_type': outfit_type or '',
+            'size': size or '',
+            'quantity': quantity,
+            'price': str(price),
+            'url': request.build_absolute_uri(reverse('supplier:po_qr', args=[po.pk])),
         }
 
-        qr_img = qrcode.make(str(data))
+        qr_payload = json.dumps(data, sort_keys=True)
+        qr_img = qrcode.make(qr_payload)
         buffer = io.BytesIO()
         qr_img.save(buffer, 'PNG')
         buffer.seek(0)
-        po.qr_code.save(f'po_{po.pk}_qr.png', ContentFile(buffer.read()))
+        po.qr_code.save(f'po_{po.pk}_qr_{submission_ref}.png', ContentFile(buffer.read()))
         po.save()
 
         # mark link used
@@ -130,12 +150,28 @@ def secure_order_form(request, token):
 
 
 def po_qr_view(request, pk):
-    po = get_object_or_404(PurchaseOrder, pk=pk)
+    po = get_object_or_404(PurchaseOrder.objects.select_related('supplier').prefetch_related('items__category'), pk=pk)
+
+    if request.method == 'POST':
+        action_name = request.POST.get('action')
+        if action_name == 'verify':
+            po.status = 'CONFIRMED'
+            po.is_discrepancy = False
+            po.save(update_fields=['status', 'is_discrepancy'])
+            messages.success(request, 'Order verified successfully.')
+        elif action_name == 'discrepancy':
+            po.is_discrepancy = True
+            po.save(update_fields=['is_discrepancy'])
+            messages.warning(request, 'Order marked for discrepancy review.')
+        return redirect(reverse('supplier:po_qr', args=[po.pk]))
+
     return render(request, 'supplier/po_qr.html', {'po': po})
+
 
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
+
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -156,7 +192,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
         from inventory.models import Discrepancy
-        
+
         created_discrepancies = []
         for item in items:
             discrepancy = Discrepancy.objects.create(
@@ -166,15 +202,12 @@ class OrderViewSet(viewsets.ModelViewSet):
                 quantity=item.get('qty', 0)
             )
             created_discrepancies.append(discrepancy.pk)
-            
-            # "Auto-generates supplier feedback record"
-            # TODO: Implement Supplier Feedback logic if needed.
-            # For now just logging discrepancy is what's requested in schema.
 
         return Response({
-            "message": "Discrepancies reported", 
+            "message": "Discrepancies reported",
             "ids": created_discrepancies
         }, status=status.HTTP_201_CREATED)
+
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all()
