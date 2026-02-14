@@ -2,20 +2,76 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Purchase Order QR</title>
+  <style>
+    body { margin: 0; background: #f7f3ef; font-family: "Segoe UI", Arial, sans-serif; color: #2e2219; }
+    .wrap { max-width: 980px; margin: 30px auto; padding: 0 16px; }
+    .card { background: #fff; border: 1px solid #e6d5c6; border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+    h1,h2 { margin-top: 0; }
+    .meta { color: #6f5f52; margin-bottom: 14px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+    .qr img { width: min(320px, 100%); border: 1px solid #e6d5c6; border-radius: 12px; background: #fff; padding: 10px; }
+    .btn { margin-top: 10px; background: #9a5c2f; color: #fff; border: 0; border-radius: 10px; height: 40px; padding: 0 16px; font-weight: 700; cursor: pointer; }
+    .btn.secondary { background: #4c6f8f; }
+    .btn.warn { background: #b64848; }
+    .status { font-weight: 700; }
+    .msg { padding: 10px 12px; border-radius: 8px; margin: 0 0 12px; }
+    .msg.success { background: #e8f7ea; color: #1e6b2b; }
+    .msg.warning { background: #fff5e8; color: #8a5b21; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-bottom: 1px solid #eadfd5; text-align: left; padding: 10px 8px; font-size: 14px; }
+    th { color: #7a6859; }
+    code { background: #f5efe8; padding: 2px 6px; border-radius: 6px; }
+  </style>
 </head>
 <body>
-  <h1>Purchase Order {{ po.pk }}</h1>
-  <p>Supplier: {{ po.supplier.name }}</p>
-  <p>Status: {{ po.status }}</p>
+  <div class="wrap">
+    <div class="card">
+      <h1>Purchase Order {{ po.pk }}</h1>
+      <p class="meta">
+        Supplier: <strong>{{ po.supplier.name }}</strong> ·
+        Status: <span class="status">{{ po.status }}</span>
+      </p>
 
-  {% if po.qr_code %}
-    <div>
-      <img src="{{ po.qr_code.url }}" alt="QR Code" style="width:300px;height:300px;">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="row">
+        <div class="qr">
+          {% if po.qr_code %}
+            <img src="{{ po.qr_code.url }}" alt="QR Code">
+            <br>
+            <button class="btn secondary" onclick="window.print()">Print QR</button>
+          {% else %}
+            <p>No QR generated.</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <h2>Scan details</h2>
+          <table>
+            <tr><th>Submission ref</th><td><code>{{ scan_details.submission_ref }}</code></td></tr>
+            <tr><th>PO ID</th><td>{{ scan_details.po_id }}</td></tr>
+            <tr><th>Supplier ID</th><td>{{ scan_details.supplier_id }}</td></tr>
+            <tr><th>Created at</th><td>{{ scan_details.created_at }}</td></tr>
+            <tr><th>Outfit type</th><td>{{ scan_details.outfit_type }}</td></tr>
+            <tr><th>Size</th><td>{{ scan_details.size }}</td></tr>
+            <tr><th>Quantity</th><td>{{ scan_details.quantity }}</td></tr>
+            <tr><th>Price</th><td>{{ scan_details.price }}</td></tr>
+          </table>
+
+          <form method="post" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+            {% csrf_token %}
+            <button class="btn" type="submit" name="action" value="verify">Order verified</button>
+            <button class="btn warn" type="submit" name="action" value="discrepancy">Add to discrepancy</button>
+          </form>
+        </div>
+      </div>
     </div>
-    <button onclick="window.print()">Print QR</button>
-  {% else %}
-    <p>No QR generated.</p>
-  {% endif %}
+  </div>
 </body>
 </html>
