@@ -52,11 +52,30 @@
         </div>
 
         <div>
+          <h2>Scan details</h2>
+          {% if scan_details %}
+            <table>
+              <tr><th>Submission ref</th><td><code>{{ scan_details.submission_ref }}</code></td></tr>
+              <tr><th>PO ID</th><td>{{ scan_details.po_id }}</td></tr>
+              <tr><th>Supplier ID</th><td>{{ scan_details.supplier_id }}</td></tr>
+              <tr><th>Created at</th><td>{{ scan_details.created_at }}</td></tr>
+              <tr><th>Outfit type</th><td>{{ scan_details.outfit_type }}</td></tr>
+              <tr><th>Size</th><td>{{ scan_details.size }}</td></tr>
+              <tr><th>Quantity</th><td>{{ scan_details.quantity }}</td></tr>
+              <tr><th>Price</th><td>{{ scan_details.price }}</td></tr>
+              <tr><th>URL</th><td><code>{{ scan_details.url }}</code></td></tr>
+            </table>
 
-            {% csrf_token %}
-            <button class="btn" type="submit" name="action" value="verify">Order verified</button>
-            <button class="btn warn" type="submit" name="action" value="discrepancy">Add to discrepancy</button>
-          </form>
+            <form method="post" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+              {% csrf_token %}
+              <input type="hidden" name="ref" value="{{ ref }}">
+              <button class="btn" type="submit" name="action" value="verify">Order verified</button>
+              <button class="btn warn" type="submit" name="action" value="discrepancy">Add to discrepancy</button>
+            </form>
+          {% else %}
+            <p class="meta">Scan this QR code to open with <code>?ref=...</code> and see submission details + action buttons.</p>
+          {% endif %}
+        </div>
         </div>
       </div>
     </div>

@@ -141,9 +141,12 @@ def secure_order_form(request, token):
 
 def po_qr_view(request, pk):
     po = get_object_or_404(PurchaseOrder.objects.select_related('supplier').prefetch_related('items__category'), pk=pk)
+    ref = request.GET.get('ref', '').strip()
 
     if request.method == 'POST':
         action_name = request.POST.get('action')
+        posted_ref = request.POST.get('ref', '').strip()
+
         if action_name == 'verify':
             po.status = 'CONFIRMED'
             po.is_discrepancy = False
@@ -153,22 +156,33 @@ def po_qr_view(request, pk):
             po.is_discrepancy = True
             po.save(update_fields=['is_discrepancy'])
             messages.warning(request, 'Order marked for discrepancy review.')
-        return redirect(reverse('supplier:po_qr', args=[po.pk]))
+
+        target = reverse('supplier:po_qr', args=[po.pk])
+        if posted_ref:
+            target = f"{target}?ref={posted_ref}"
+        return redirect(target)
 
     latest_item = po.items.order_by('-id').first()
-    scan_details = {
-        'submission_ref': request.GET.get('ref', '-'),
-        'po_id': po.pk,
-        'supplier_id': po.supplier_id,
-        'created_at': po.created_at,
-        'outfit_type': latest_item.outfit_type if latest_item else '-',
-        'size': latest_item.size if latest_item else '-',
-        'quantity': latest_item.quantity if latest_item else '-',
-        'price': latest_item.price if latest_item else '-',
-    }
+    scan_details = None
+    if ref:
+        scan_details = {
+            'submission_ref': ref,
+            'po_id': po.pk,
+            'supplier_id': po.supplier_id,
+            'created_at': po.created_at,
+            'outfit_type': latest_item.outfit_type if latest_item else '-',
+            'size': latest_item.size if latest_item else '-',
+            'quantity': latest_item.quantity if latest_item else '-',
+            'price': latest_item.price if latest_item else '-',
+            'url': request.build_absolute_uri(reverse('supplier:po_qr', args=[po.pk])),
+        }
 
-    return render(request, 'supplier/po_qr.html', {'po': po, 'scan_details': scan_details})
-
+    return render(request, 'supplier/po_qr.html', {
+        'po': po,
+        'scan_details': scan_details,
+        'show_scan_actions': bool(ref),
+        'ref': ref,
+    })
 
 
 class SupplierViewSet(viewsets.ModelViewSet):
