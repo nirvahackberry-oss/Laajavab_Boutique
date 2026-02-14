@@ -154,14 +154,24 @@ class SecureOrderLinkAdmin(admin.ModelAdmin):
 
     @admin.display(description='Copy URL')
     def copy_url_button(self, obj):
+        is_expired = bool(obj.expires_at and obj.expires_at < timezone.now())
+        if is_expired:
+            return format_html('<button type="button" class="button" disabled title="Link expired">Copy</button>')
+
         relative_url = reverse('supplier:secure_order_form', args=[obj.token])
         copy_js = (
-            "return (function(){"
+            "return (async function(){"
             f"const url=window.location.origin + '{relative_url}';"
-            "const fallback=function(text){try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');document.body.removeChild(ta);return ok;}catch(e){return false;}};"
-            "if(navigator.clipboard && window.isSecureContext){navigator.clipboard.writeText(url).then(function(){window.alert('Link copied to clipboard.');}).catch(function(){if(!fallback(url)){window.prompt('Copy this link:',url);}});}"
-            "else{if(!fallback(url)){window.prompt('Copy this link:',url);}}"
-            "return false;})();"
+            "const fallback=function(text){try{const ta=document.createElement('textarea');"
+            "ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';"
+            "document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');"
+            "document.body.removeChild(ta);return ok;}catch(e){return false;}};"
+            "let copied=false;"
+            "if(navigator.clipboard && window.isSecureContext){copied=await navigator.clipboard.writeText(url).then(()=>true).catch(()=>false);}"
+            "if(!copied){copied=fallback(url);}"
+            "if(copied){window.alert('Link copied to clipboard.');}else{window.prompt('Copy this link:',url);}"
+            "return false;"
+            "})();"
         )
         return format_html('<button type="button" class="button" onclick="{}">Copy</button>', copy_js)
 
