@@ -156,13 +156,10 @@ def po_qr_view(request, pk):
         action_name = request.POST.get('action')
         if action_name == 'verify':
             po.status = 'CONFIRMED'
-            po.is_discrepancy = False
-            po.save(update_fields=['status', 'is_discrepancy'])
+            po.save(update_fields=['status'])
             messages.success(request, 'Order verified successfully.')
         elif action_name == 'discrepancy':
-            po.is_discrepancy = True
-            po.save(update_fields=['is_discrepancy'])
-            messages.warning(request, 'Order marked for discrepancy review.')
+            messages.warning(request, 'Discrepancy noted. Please record discrepancy details in inventory flow.')
         return redirect(reverse('supplier:po_qr', args=[po.pk]))
 
     return render(request, 'supplier/po_qr.html', {'po': po})
