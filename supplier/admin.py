@@ -135,7 +135,7 @@ class OrderItemInline(admin.TabularInline):
 
 
 @admin.register(Order)
-class OrderAdmin(ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'supplier', 'category', 'outfit_type', 'status', 'created_at']
     list_filter = ['status', 'category', 'created_at']
     search_fields = ['order_sku', 'supplier__name']
