@@ -170,6 +170,7 @@ def po_qr_view(request, pk):
     return render(request, 'supplier/po_qr.html', {'po': po, 'scan_details': scan_details})
 
 
+
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
