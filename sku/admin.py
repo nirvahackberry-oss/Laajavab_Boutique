@@ -1,8 +1,9 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from .models import ProductSKU
 
 @admin.register(ProductSKU)
-class ProductSKUAdmin(admin.ModelAdmin):
+class ProductSKUAdmin(ModelAdmin):
     list_display = ['sku_code', 'category', 'outfit_type', 'price', 'created_at']
     list_filter = ['category', 'outfit_type', 'created_at']
     search_fields = ['sku_code']

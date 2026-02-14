@@ -70,6 +70,7 @@ class PurchaseOrder(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
     secure_link = models.ForeignKey(SecureOrderLink, null=True, blank=True, on_delete=models.SET_NULL)
     qr_code = models.ImageField(upload_to='po_qr_codes/', null=True, blank=True)
+    is_discrepancy = models.BooleanField(default=False)
 
     def __str__(self):
         return f"PO-{self.pk} ({self.supplier.name})"
