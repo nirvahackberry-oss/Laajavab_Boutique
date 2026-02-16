@@ -140,7 +140,7 @@ def secure_order_form(request, token):
 
 
 def po_qr_view(request, pk):
-    po = get_object_or_404(PurchaseOrder.objects.select_related('supplier').prefetch_related('purchaseorderitem_set__category'), pk=pk)
+    po = get_object_or_404(PurchaseOrder.objects.select_related('supplier').prefetch_related('items__category'), pk=pk)
     ref = request.GET.get('ref', '').strip()
 
     if request.method == 'POST':
