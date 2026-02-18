@@ -11,11 +11,9 @@ from django.utils.html import format_html
 from .models import Supplier, Order, OrderItem, SecureOrderLink
 
 
-# @admin.register(Supplier)
-# class SupplierAdmin(ModelAdmin):
-#     list_display = ['name', 'email', 'region']
-class SupplierAdmin(admin.ModelAdmin):
-    list_display = ['name', 'email', 'region', 'create_secure_link_button']
+@admin.register(Supplier)
+class SupplierAdmin(ModelAdmin):
+    list_display = ['name', 'email', 'region']
     search_fields = ['name', 'email']
     readonly_fields = ['supplier_secure_form_url']
 
