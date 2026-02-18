@@ -1,0 +1,234 @@
+{% extends "admin/base.html" %}
+{% load unfold i18n static %}
+
+{% block title %}
+{{ site_title }} | Dashboard
+{% endblock %}
+
+{% block branding %}
+{% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block extrahead %}
+<style>
+
+/* ===== KPI CARD COLORS ===== */
+.kpi-primary { background-color: #EE9F8D; }
+.kpi-primary:hover { background-color: #F9735C; }
+
+.kpi-base { background-color: #A8795D; }
+.kpi-base:hover { background-color: #8C5736; }
+
+.kpi-dark { background-color: #6E432A; }
+.kpi-dark:hover { background-color: #4F301D; }
+
+.kpi-default { background-color: #8F4D3F; }
+.kpi-default:hover { background-color: #68453D; }
+
+.kpi-card {
+    transition: all 0.3s ease;
+}
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 35px rgba(0,0,0,0.15);
+}
+
+/* Chart Box */
+.chart-box {
+    background: rgba(255, 244, 241, 0.7);
+    border: 1px solid #E6D4C3;
+    backdrop-filter: blur(8px);
+}
+.dark .chart-box {
+    background: rgba(46, 28, 18, 0.8);
+    border: 1px solid #6E432A;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen p-2 space-y-8">
+
+<!-- KPI CARDS -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-5">
+    {% for item in stats %}
+    <div class="kpi-card rounded-2xl shadow-lg p-5 text-white flex flex-col justify-between
+        {% if item.color == 'primary' %} kpi-primary
+        {% elif item.color == 'base' %} kpi-base
+        {% elif item.color == 'dark' %} kpi-dark
+        {% else %} kpi-default {% endif %}">
+        
+        <div class="flex justify-between items-center">
+            <p class="font-bold uppercase tracking-wider">{{ item.label }}</p>
+            <span class="material-symbols-outlined text-4xl">
+                {{ item.icon }}
+            </span>
+        </div>
+
+        <h2 class="text-3xl font-bold mt-4">{{ item.value }}</h2>
+
+        <div class="mt-4 h-1 bg-white/30 rounded-full overflow-hidden">
+            <div class="h-full bg-[#FFF4F1] w-2/3 rounded-full"></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- CHARTS -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
+
+    <!-- LINE -->
+    <div class="chart-box rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold mb-6 text-[#2E1C12] dark:text-[#F4ECE2]">
+            {% trans "Growth Trend" %}
+        </h2>
+        <div class="chart-container">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+
+    <!-- BAR -->
+    <div class="chart-box rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold mb-6 text-[#2E1C12] dark:text-[#F4ECE2]">
+            {% trans "Content Overview" %}
+        </h2>
+        <div class="chart-container">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- PIE -->
+<div class="chart-box rounded-2xl shadow-xl p-6">
+    <h2 class="text-xl font-bold mb-6 text-[#2E1C12] dark:text-[#F4ECE2]">
+        {% trans "Distribution" %}
+    </h2>
+    <div style="height:300px;">
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+const labels = {{ chart_labels|safe }};
+const values = {{ chart_values|safe }};
+
+const isDark = document.documentElement.classList.contains("dark");
+const textColor = isDark ? "#F4ECE2" : "#2E1C12";
+const gridColor = isDark ? "#6E432A" : "#E6D4C3";
+
+const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            labels: { color: textColor }
+        }
+    },
+    scales: {
+        x: {
+            ticks: { color: textColor },
+            grid: { color: gridColor }
+        },
+        y: {
+            beginAtZero: true,
+            ticks: { color: textColor },
+            grid: { color: gridColor }
+        }
+    }
+};
+
+//// LINE CHART
+const lineCtx = document.getElementById('lineChart').getContext('2d');
+const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 300);
+lineGradient.addColorStop(0, 'rgba(238,159,141,0.6)');
+lineGradient.addColorStop(1, 'rgba(168,121,93,0.05)');
+
+new Chart(lineCtx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Growth Statistics",
+            data: values,
+            borderColor: "#8F4D3F",
+            backgroundColor: lineGradient,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: "#EE9F8D",
+            borderWidth: 3
+        }]
+    },
+    options: commonOptions
+});
+
+//// BAR CHART (Fixed)
+const barCtx = document.getElementById('barChart').getContext('2d');
+const barGradient = barCtx.createLinearGradient(0, 0, 0, 300);
+barGradient.addColorStop(0, "#EE9F8D");
+barGradient.addColorStop(1, "#A8795D");
+
+new Chart(barCtx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Content Statistics",
+            data: values,
+            backgroundColor: barGradient,
+            borderRadius: 3,
+            borderSkipped: false,
+            barPercentage: 0.6,
+            categoryPercentage: 0.6
+        }]
+    },  
+    options: commonOptions
+});
+
+//// PIE CHART
+new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: values,
+            backgroundColor: [
+                '#EE9F8D',
+                '#A8795D',
+                '#8C5736',
+                '#6E432A',
+                '#F9735C',
+                '#C19A7B'
+            ],
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { color: textColor }
+            }
+        }
+    }
+});
+
+});
+</script>
+
+{% endblock %}

@@ -2,19 +2,29 @@
 *.py[cod]
 __pycache__/
 *.so
+*.py[oc]
+
+# Python-generated files
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+venv/
+ENV/
 
 # Django
 *.log
 db.sqlite3
 db.sqlite3-journal
-/media
-/staticfiles
+media/
+staticfiles/
 
 # Environment
 .env
-.venv
-venv/
-ENV/
+.python-version
 
 # IDE
 .vscode/
@@ -25,6 +35,3 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
-
-# uv
-.python-version

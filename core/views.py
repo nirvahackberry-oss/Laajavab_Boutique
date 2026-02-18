@@ -150,3 +150,54 @@ class OutfitTypeViewSet(viewsets.ModelViewSet):
         outfit_type = OutfitType.objects.create(name=name, code=code)
         serializer = self.get_serializer(outfit_type)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+import json
+from django.utils import timezone
+from django.db.models import Count
+from supplier.models import Supplier, Order
+from alteration.models import Alteration
+from sku.models import ProductSKU
+
+
+def dashboard_callback(request, context):
+
+    # =======================
+    # KPI STATS
+    # =======================
+    context["stats"] = [
+        {
+            "label": "Total Products",
+            "value": ProductSKU.objects.count(),
+            "icon": "inventory_2",
+        },
+        {
+            "label": "Active Orders",
+            "value": Order.objects.exclude(status="COMPLETED").count(),
+            "icon": "shopping_cart",
+
+        },
+        {
+            "label": "Pending Alterations",
+            "value": Alteration.objects.filter(status="PENDING").count(),
+            "icon": "content_cut",
+
+        },
+        {
+            "label": "Suppliers",
+            "value": Supplier.objects.count(),
+            "icon": "local_shipping",
+
+        },
+    ]
+
+    # =======================
+    # CHART DATA (STATIC)
+    # =======================
+
+    labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    values = [12, 19, 8, 15, 22, 18]
+
+    context["chart_labels"] = json.dumps(labels)
+    context["chart_values"] = json.dumps(values)
+
+    return context

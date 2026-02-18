@@ -20,7 +20,6 @@ admin.site.unregister(Group)
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
-    # Forms loaded from `unfold.forms`
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
@@ -29,6 +28,14 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
 @admin.register(Group)
 class GroupAdmin(BaseGroupAdmin, ModelAdmin):
     pass
+
+
+from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+
+admin.site.site_header = _("Laajavab Boutique")
+admin.site.site_title = _("Laajavab Boutique Admin")
+admin.site.index_title = _("Dashboard")
 
 
 @admin.register(Category)

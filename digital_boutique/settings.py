@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-@h+u_el)9nn$-eybievpu!h5&r!-cmc1^(x$3rwe7dt!88)a24
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.29.31", "192.168.29.32"]
+# ALLOWED_HOSTS = ["192.168.29.31", "192.168.29.32"]
+ALLOWED_HOSTS = ["192.168.29.31"]
 
 
 # Application definition
@@ -75,7 +76,7 @@ ROOT_URLCONF = 'digital_boutique.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR, 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,7 +84,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-        },
+        },  
     },
 ]
 
@@ -103,7 +104,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -159,24 +159,17 @@ UNFOLD = {
     "SITE_TITLE": "Laajavab Boutique",
     "SITE_HEADER": "Laajavab Boutique",
     "SITE_DROPDOWN": [
-        {
-            "icon": "diamond",
-            "title": _("My site"),
-            "link": "/",
-        },
-        # ...
+        {"icon": "diamond", "title": _("My site"), "link": "/"},
     ],
     "SITE_URL": "/",
-    "LOGIN": {
-        "image": lambda request: static("core/img/lj_bot.png"),
-    },
-    # "SITE_ICON": lambda request: static("core/img/lj_bot.svg"),
+    "LOGIN": {"image": lambda request: static("core/img/lj_bot.png")},
     "SITE_ICON": lambda request: static("core/img/1.svg"),
-    "SHOW_HISTORY": True,  # show/hide "History" button, default: True
-    "SHOW_VIEW_ON_SITE": True,  # show/hide "View on site" button, default: True
-    "SHOW_BACK_BUTTON": False,  # show/hide "Back" button on changeform in header, default: Fals
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SHOW_BACK_BUTTON": False,
     "BORDER_RADIUS": "10px",
-    "THEME": "light", 
+    "DASHBOARD_CALLBACK": "core.views.dashboard_callback",
+    "THEME": "light",
     "COLORS": {
         "base": {
             "50": "#FBF7F2",
@@ -213,95 +206,55 @@ UNFOLD = {
     },
     "EXTENSIONS": {
         "modeltranslation": {
-            "flags": {
-                "en": "🇬🇧",
-                "fr": "🇫🇷",
-                "nl": "🇧🇪",
-            },
+            "flags": {"en": "🇬🇧", "fr": "🇫🇷", "nl": "🇧🇪"},
         },
     },
     "SIDEBAR": {
-        "show_search": False,  # Search in applications and models names
-        "command_search": False,  # Replace the sidebar search with the command search
-        "show_all_applications": False,  # Dropdown with all applications and models
+        "show_search": False,
+        "command_search": False,
+        "show_all_applications": False,
         "navigation": [
             {
-                "title": _("Dashboard"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
                 "items": [
                     {
                         "title": _("Dashboard"),
                         "icon": "dashboard",
                         "link": reverse_lazy("admin:index"),
-                        "badge_variant": "info",
-                        "badge_style": "solid",
-                        "permission": lambda request: request.user.is_superuser,
-                    },
-                    # {
-                    #     "title": _("Users"),
-                    #     "icon": "people",
-                    #     "link": reverse_lazy("admin:auth_user_changelist"),
-                    # },
-                    # {
-                    #     "title": _("Groups"),
-                    #     "icon": "person",
-                    #     "link": reverse_lazy("admin:auth_group_changelist"),
-                    # },
-                ],
-            },
-            {
-                "title": _("Alterations"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
-                "items": [
-                    {
-                        "title": _("Tailors"),
-                        "icon": "diamond",
-                        "link": reverse_lazy("admin:alteration_tailor_changelist"),
-                    },
-                    {
-                        "title": _("Customers"),
-                        "icon": "diamond",
-                        "link": reverse_lazy("admin:alteration_customer_changelist"),
-                    },
-                    {
-                        "title": _("Alterations"),
-                        "icon": "diamond",
-                        "link": reverse_lazy("admin:alteration_alteration_changelist"),
                     },
                 ],
             },
             {
-                "title": _("Core"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
+                "title": _("Suppliers"),
+                "separator": True,
+                "collapsible": True,
                 "items": [
                     {
-                        "title": _("Categories"),
-                        "icon": "category",
-                        "link": reverse_lazy("admin:core_category_changelist"),
+                        "title": _("Suppliers"),
+                        "icon": "local_shipping",
+                        "link": reverse_lazy("admin:supplier_supplier_changelist"),
                     },
                     {
-                        "title": _("Outfit Types"),
-                        "icon": "diamond",
-                        "link": reverse_lazy("admin:core_outfittype_changelist"),
+                        "title": _("SecureOrderLinks"),
+                        "icon": "link",
+                        "link": reverse_lazy(
+                            "admin:supplier_secureorderlink_changelist"
+                        ),
                     },
                 ],
             },
             {
                 "title": _("Inventory"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
+                "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Discrepancies"),
-                        "icon": "diamond",
+                        "icon": "report_problem",
                         "link": reverse_lazy("admin:inventory_discrepancy_changelist"),
                     },
                     {
                         "title": _("Inventory Items"),
-                        "icon": "diamond",
+                        "icon": "inventory",
                         "link": reverse_lazy(
                             "admin:inventory_inventoryitem_changelist"
                         ),
@@ -310,32 +263,53 @@ UNFOLD = {
             },
             {
                 "title": _("SKU"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
+                "separator": True,
+                "collapsible": True,
                 "items": [
                     {
                         "title": _("Product SKUs"),
-                        "icon": "diamond",
+                        "icon": "label",
                         "link": reverse_lazy("admin:sku_productsku_changelist"),
+                    }
+                ],
+            },
+            {
+                "title": _("Alterations"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Tailors"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:alteration_tailor_changelist"),
+                    },
+                    {
+                        "title": _("Customers"),
+                        "icon": "group",
+                        "link": reverse_lazy("admin:alteration_customer_changelist"),
+                    },
+                    {
+                        "title": _("Alterations"),
+                        "icon": "content_cut",
+                        "link": reverse_lazy("admin:alteration_alteration_changelist"),
                     },
                 ],
             },
             {
-                "title": _("Suppliers"),
-                "separator": True,  # Top border
-                "collapsible": True,  # Collapsible group of links
+                "title": _("Clothing Categories"),
+                "separator": True,
+                "collapsible": True,
                 "items": [
                     {
-                        "title": _("Suppliers"),
-                        "icon": "diamond",
-                        "link": reverse_lazy("admin:supplier_supplier_changelist"),
+                        "title": _("Categories"),
+                        "icon": "category",
+                        "link": reverse_lazy("admin:core_category_changelist"),
                     },
                     {
-                        "title": _("SecureOrderLinks"),
-                        "icon": "diamond",
-                        "link": reverse_lazy("admin:supplier_secureorderlink_changelist"),
+                        "title": _("Outfit Types"),
+                        "icon": "checkroom",
+                        "link": reverse_lazy("admin:core_outfittype_changelist"),
                     },
-                    
                 ],
             },
         ],
@@ -344,3 +318,4 @@ UNFOLD = {
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
+CRISPY_FAIL_SILENTLY = False
