@@ -60,31 +60,51 @@ class SecureOrderLink(models.Model):
 
 class PurchaseOrder(models.Model):
     STATUS_CHOICES = [
-        ('NEW', 'New'),
-        ('CONFIRMED', 'Confirmed'),
-        ('RECEIVED', 'Received'),
+        ("NEW", "New"),
+        ("SUBMITTED", "Submitted"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+        ("UNDER_REVIEW", "Under Review"),
+        ("READY_FOR_SKU", "Ready for SKU"),
+        ("SKU_GENERATED", "SKU Generated"),
+        ("IN_INVENTORY", "In Inventory"),
     ]
 
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
-    secure_link = models.ForeignKey(SecureOrderLink, null=True, blank=True, on_delete=models.SET_NULL)
-    qr_code = models.ImageField(upload_to='po_qr_codes/', null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="NEW")
+    secure_link = models.ForeignKey(
+        SecureOrderLink, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    qr_code = models.ImageField(upload_to="po_qr_codes/", null=True, blank=True)
     is_discrepancy = models.BooleanField(default=False)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="approved_purchase_orders",
+    )
 
     def __str__(self):
         return f"PO-{self.pk} ({self.supplier.name})"
 
 
 class PurchaseOrderItem(models.Model):
-    purchase_order = models.ForeignKey(PurchaseOrder, related_name='items', on_delete=models.CASCADE)
+    purchase_order = models.ForeignKey(
+        PurchaseOrder, related_name="items", on_delete=models.CASCADE
+    )
     outfit_type = models.CharField(max_length=100)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True, blank=True
+    )
     size = models.CharField(max_length=50)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='po_item_images/', null=True, blank=True)
-    sku = models.CharField(max_length=100, null=True, blank=True)
+    image = models.ImageField(upload_to="po_item_images/", null=True, blank=True)
+    sku = models.CharField(max_length=100, null=True, blank=True, unique=True)
+    sku_generated_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"POItem {self.pk} - {self.outfit_type} x{self.quantity}"
