@@ -36,7 +36,7 @@
 
       {% if messages %}
         {% for message in messages %}
-          <div class="msg {{ message.tags }}">{{ message }}</div>
+          <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
         {% endfor %}
       {% endif %}
 
@@ -52,15 +52,7 @@
           <tr><th>Quantity</th><td>{{ scan_details.quantity }}</td></tr>
           <tr><th>Price</th><td>{{ scan_details.price }}</td></tr>
           <tr><th>Image</th><td>{{ scan_details.image.url }}</td></tr>
-
         </table>
-
-        <form method="post" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-          {% csrf_token %}
-          <input type="hidden" name="ref" value="{{ ref }}">
-          <button class="btn" type="submit" name="action" value="verify">Order verified</button>
-          <button class="btn warn" type="submit" name="action" value="discrepancy">Add to discrepancy</button>
-        </form>
       {% else %}
         <div class="row">
           <div class="qr">
@@ -74,6 +66,48 @@
           </div>
         </div>
       {% endif %}
+
+      <form method="post" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
+        {% csrf_token %}
+        <input type="hidden" name="ref" value="{{ ref }}">
+        {% if show_scan_actions %}
+          <button class="btn" type="submit" name="action" value="verify">✓ Approve</button>
+          <button class="btn warn" type="submit" name="action" value="reject">✗ Reject</button>
+          <button class="btn secondary" type="submit" name="action" value="modify">⟳ Modify</button>
+          <button class="btn" type="submit" name="action" value="discrepancy">⚠ Discrepancy</button>
+        {% endif %}
+      </form>
+
+      
+      {% if po.status == 'APPROVED' and po.items.all %}
+        <div style="margin-top: 20px; padding: 12px; background: #f0f8ff; border-radius: 8px;">
+          <strong>Next Step:</strong>
+          <a href="{% url 'supplier:generate_sku' po.pk %}" class="btn secondary" style="display: inline-block; margin-left: 10px;">
+            Generate SKUs
+          </a>
+        </div>
+      {% endif %}
+
+      
+      {% if po.status == 'SKU_GENERATED' %}
+        <div style="margin-top: 20px; padding: 12px; background: #e8f7ea; border-radius: 8px;">
+          <strong>✓ SKUs Generated</strong>
+          <button class="btn secondary" onclick="window.print()" style="margin-left: 10px;">Print SKU Labels</button>
+        </div>
+        <table style="margin-top: 16px;">
+          <thead>
+            <tr><th>Item</th><th>SKU</th><th>Qty</th></tr>
+          </thead>
+          <tbody>
+            {% for item in po.items.all %}
+              <tr><td>{{ item.outfit_type }}</td><td><code>{{ item.sku }}</code></td><td>{{ item.quantity }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+        
+        
+
     </div>
   </div>
 </body>
